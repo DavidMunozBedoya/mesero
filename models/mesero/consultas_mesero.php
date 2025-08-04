@@ -48,6 +48,25 @@ class consultas_mesero
         return $this->mysql->efectuarConsulta($query);
     }
 
+    public function traerProductosPorCategoria($idcategorias)
+    {
+        $query = "
+            SELECT 
+                p.idproductos,
+                p.nombre_producto,
+                p.precio_producto,
+                p.stock_producto,
+                p.tipo_productos_idtipo_productos,
+                tp.nombre_tipo
+            FROM productos p
+            INNER JOIN tipo_productos tp ON p.tipo_productos_idtipo_productos = tp.idtipo_productos
+            WHERE p.fk_categoria = $idcategorias 
+            AND p.estados_idestados = 1
+            ORDER BY p.nombre_producto";
+        
+        return $this->mysql->efectuarConsulta($query);
+    }
+
 
 
 }

@@ -190,3 +190,48 @@ body.bg-coffee {
   color: #6c757d !important;
   font-weight: normal;
 }
+
+/* Estilos para productos */
+.product-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+  border-color: #d4a574;
+}
+
+.card-agotado {
+  opacity: 0.6;
+  background-color: #f8f9fa;
+}
+
+.card-agotado:hover {
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.product-card .btn-agregar-producto {
+  background-color: #d4a574;
+  border-color: #d4a574;
+  transition: all 0.3s ease;
+}
+
+.product-card .btn-agregar-producto:hover:not(:disabled) {
+  background-color: #c49660;
+  border-color: #c49660;
+  transform: translateY(-1px);
+}
+
+.product-card .btn-agregar-producto:disabled {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Spinner de carga */
+.spinner-border {
+  color: #d4a574;
+}
