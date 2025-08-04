@@ -63,7 +63,7 @@ function CargarProductos() {
 
     try {
       // 🔥 AQUÍ ES DONDE CARGA LOS PRODUCTOS:
-      const response = await fetch("../../controllers/cargar_productos.php", {
+      const response = await fetch("../../controllers/mesero/cargar_productos.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
