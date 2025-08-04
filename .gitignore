@@ -1,0 +1,28 @@
+# Archivos de configuración sensibles
+config/config.php
+
+# Archivos temporales
+*.tmp
+*.log
+
+# Carpetas del sistema
+.DS_Store
+Thumbs.db
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependencias (si usas Composer)
+vendor/
+
+# Archivos de backup
+*.bak
+*.backup
+
+# Archivos de base de datos
+*.sql
+*.db
+*.sqlite

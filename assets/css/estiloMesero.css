@@ -1,0 +1,192 @@
+/* Estilos específicos para mesero.php */
+
+/* Fondo principal */
+body.bg-coffee {
+  background: linear-gradient(135deg, #f8f4f0 0%, #ede4dc 100%);
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  color: #3e2723;
+}
+
+/* Botones */
+.btn-primary {
+  background-color: #d4a574;
+  border: none;
+  transition: all 0.3s ease;
+  color: #3e2723;
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  background-color: #c49660;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+  color: #3e2723;
+}
+
+.btn-success {
+  background-color: #a67c52;
+  transition: all 0.3s ease;
+  border: none;
+  color: #ffffff;
+}
+
+.btn-success:hover {
+  background-color: #8b6a42;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(166, 124, 82, 0.3);
+}
+
+/* Textos */
+.text-light {
+  color: #3e2723 !important;
+}
+
+.text-muted {
+  color: #6d4c41 !important;
+}
+
+/* Tarjetas */
+.card {
+  transition: all 0.3s ease;
+  border-radius: 1rem !important;
+  background-color: #ffffff;
+  border: 1px solid #e8ddd4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  background-color: #f5f1eb;
+  border-bottom: 1px solid #e8ddd4;
+}
+
+/* Formularios */
+.form-select {
+  border: 2px solid #e8ddd4;
+  transition: all 0.3s ease;
+  background-color: #ffffff;
+  color: #3e2723;
+}
+
+.form-select:focus {
+  border-color: #d4a574;
+  box-shadow: 0 0 0 0.25rem rgba(212, 165, 116, 0.25);
+}
+
+.form-control {
+  border: 2px solid #e8ddd4;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  background-color: #ffffff;
+  color: #3e2723;
+}
+
+.form-control:focus {
+  border-color: #d4a574;
+  box-shadow: 0 0 0 0.25rem rgba(212, 165, 116, 0.25);
+  background-color: #ffffff;
+}
+
+/* Listas */
+.list-group-item {
+  border: none;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem !important;
+  background-color: #faf8f5;
+  color: #3e2723;
+  border: 1px solid #f0ebe3;
+  animation: slideInFromLeft 0.4s ease-out;
+}
+
+.list-group-item:hover {
+  background-color: #f5f1eb;
+  transform: translateX(5px);
+  transition: all 0.3s ease;
+}
+
+/* Modales */
+.modal-content {
+  border-radius: 1rem;
+  background-color: #ffffff;
+  border: 1px solid #e8ddd4;
+}
+
+.modal-header {
+  background-color: #f5f1eb;
+  border-bottom: 1px solid #e8ddd4;
+}
+
+/* Iconos */
+.fas, .fa {
+  color: #d4a574;
+  transition: color 0.3s ease;
+}
+
+.fas:hover, .fa:hover {
+  color: #c49660;
+}
+
+/* Badges */
+.badge {
+  background-color: #d4a574 !important;
+  color: #3e2723;
+}
+
+/* Alertas */
+.alert-success {
+  background-color: #e8f5e8;
+  border-color: #a67c52;
+  color: #3e2723;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  border-color: #d4a574;
+  color: #3e2723;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Estilos para select de mesas */
+#mesaSelect option[disabled] {
+  color: #dc3545 !important;
+  font-style: italic;
+  background-color: #f8d7da !important;
+}
+
+#mesaSelect option:not([disabled]) {
+  color: #28a745 !important;
+  font-weight: 500;
+}
+
+#mesaSelect option[value=""] {
+  color: #6c757d !important;
+  font-weight: normal;
+}
