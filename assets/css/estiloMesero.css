@@ -8,6 +8,57 @@ body.bg-coffee {
   color: #3e2723;
 }
 
+/* Estilos para Toast Notifications */
+.toast {
+  border-left: 4px solid;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.toast.border-success {
+  border-left-color: #28a745;
+}
+
+.toast.border-danger {
+  border-left-color: #dc3545;
+}
+
+.toast.border-warning {
+  border-left-color: #ffc107;
+}
+
+.toast.border-info {
+  border-left-color: #17a2b8;
+}
+
+.toast-header {
+  background-color: rgba(248, 249, 250, 0.9);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.toast-body {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Animación de entrada para toasts */
+.toast {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 /* Botones */
 .btn-primary {
   background-color: #d4a574;
@@ -182,7 +233,7 @@ body.bg-coffee {
 }
 
 #mesaSelect option:not([disabled]) {
-  color: #28a745 !important;
+  color: black !important;
   font-weight: 500;
 }
 
@@ -234,4 +285,42 @@ body.bg-coffee {
 /* Spinner de carga */
 .spinner-border {
   color: #d4a574;
+}
+
+/* Estilos para pedidos activos */
+.border-left-primary {
+  border-left: 4px solid #007bff !important;
+}
+
+#pedidosActivosMesa .card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#pedidosActivosMesa .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#pedidosActivosMesa .text-sm {
+  font-size: 0.875rem;
+}
+
+#pedidosActivosMesa .badge {
+  font-size: 0.75rem;
+}
+
+/* Estilos para el resumen de productos */
+.productos-resumen {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 0.75rem;
+}
+
+.productos-resumen .bg-light {
+  background-color: rgba(248, 249, 250, 0.8) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.productos-resumen .text-info {
+  font-style: italic;
 }

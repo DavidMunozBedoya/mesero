@@ -1,5 +1,5 @@
 <?php
-require_once '../models/mesero/consultas_mesero.php';
+require_once '../../models/mesero/consultas_mesero.php';
 
 header('Content-Type: application/json');
 
@@ -8,11 +8,19 @@ try {
         throw new Exception('Método no permitido');
     }
 
-    if (!isset($_POST['idcategorias']) || empty($_POST['idcategorias'])) {
+    // Leer datos JSON del body
+    $input = file_get_contents('php://input');
+    $data = json_decode($input, true);
+
+    if (!$data) {
+        throw new Exception('Datos JSON inválidos');
+    }
+
+    if (!isset($data['idcategorias']) || empty($data['idcategorias'])) {
         throw new Exception('ID de categoría requerido');
     }
 
-    $idcategorias = intval($_POST['idcategorias']);
+    $idcategorias = intval($data['idcategorias']);
     
     $consultasMesero = new consultas_mesero();
     $productos = $consultasMesero->traerProductosPorCategoria($idcategorias);

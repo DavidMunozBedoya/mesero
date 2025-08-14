@@ -11,7 +11,7 @@ if (empty($mesas)) {
     exit;
 }
 //opcion por defecto
-$option .= "<option value=\"\">Seleccione Mesa</option>"; // el .= concatena!!!
+$option .= "<option value=\"\">Seleccione mesa</option>"; // el .= concatena!!!
 foreach ($mesas as $mesa) {
     $estadoTexto = "";
     $disabled = "";
@@ -19,8 +19,17 @@ foreach ($mesas as $mesa) {
     switch ($mesa['estado_mesa']) {
         case 'ocupada_pedido':
             $estadoTexto = " (Con pedido activo)";
-            $disabled = " disabled";
             break;
+        case 'ocupada_token':
+            $estadoTexto = " (Con token activo)";
+            break;
+        // No mostrar nada para 'disponible'
+    }
+    
+    // Solo deshabilitar si la mesa está inactiva en la base de datos
+    if ($mesa['estados_idestados'] == 2) {
+        $estadoTexto .= " [Inactiva]";
+        $disabled = " disabled";
     }
     
     $option .= "<option value=\"{$mesa['idmesas']}\"{$disabled}>{$mesa['nombre']}{$estadoTexto}</option>";

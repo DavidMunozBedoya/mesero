@@ -11,7 +11,7 @@ if (empty($categorias)) {
     exit;
 }
 // Opción por defecto
-$option .= "<option value=\"\">Seleccione una categoría</option>"; // el .= concatena!!!
+$option .= "<option value=\"\">Seleccione categoría</option>"; // el .= concatena!!!
 foreach ($categorias as $categoria) {
     $option .= "<option value=\"{$categoria['idcategorias']}\">{$categoria['nombre_categoria']}</option>";
 }
