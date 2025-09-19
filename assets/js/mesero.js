@@ -1,3 +1,116 @@
+// Función para cargar la lista de mesas con token activo
+
+// Evento para cerrar sesión
+document.addEventListener('DOMContentLoaded', function () {
+  const btnCerrarSesion = document.getElementById('btnCerrarSesion');
+  if (btnCerrarSesion) {
+    btnCerrarSesion.addEventListener('click', function () {
+      window.location.href = '../../controllers/logout.php';
+    });
+  }
+});
+
+async function cargarMesasTokenActivas() {
+  try {
+    const response = await fetch('../../controllers/mesero/generar_token.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'activos=1'
+    });
+    const data = await response.json();
+    const lista = document.getElementById('mesasTokenLista');
+    if (data.success && Array.isArray(data.tokens)) {
+      lista.innerHTML = '';
+      if (data.tokens.length === 0) {
+        lista.innerHTML = '<li class="list-group-item">No hay mesas con token activo</li>';
+      } else {
+        data.tokens.forEach(token => {
+          lista.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><b>${token.mesa_nombre}</b> <span class="badge bg-warning text-dark ms-2">${token.token}</span></span>
+            <span class="text-muted small">Expira: ${token.fecha_hora_expiracion}</span>
+            <button class="btn btn-sm btn-danger ms-3 btn-cancelar-token" data-token-id="${token.idtoken_mesa}" title="Cancelar token">
+              <i class="fas fa-ban"></i>
+            </button>
+          </li>`;
+        });
+        // Agregar eventos a los botones de cancelar token
+        document.querySelectorAll('.btn-cancelar-token').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const tokenId = this.getAttribute('data-token-id');
+            if (!tokenId) return;
+            // Debug: log tokenId before sending
+            console.log('Cancelando token con idtoken_mesa:', tokenId);
+            // SweetAlert2 confirmación
+            const result = await Swal.fire({
+              title: '¿Cancelar token?',
+              text: '¿Seguro que deseas cancelar este token? Esta acción no se puede deshacer.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#d33',
+              cancelButtonColor: '#3085d6',
+              confirmButtonText: 'Sí, cancelar',
+              cancelButtonText: 'No'
+            });
+            if (!result.isConfirmed) return;
+            try {
+              const response = await fetch('../../controllers/mesero/cancelar_token.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idtoken_mesa: tokenId })
+              });
+              const data = await response.json();
+              if (data.success) {
+                await Swal.fire('Cancelado', 'El token fue cancelado correctamente.', 'success');
+                cargarMesasTokenActivas(); // Recargar lista
+              } else {
+                Swal.fire('Error', data.message || 'No se pudo cancelar el token', 'error');
+              }
+            } catch (error) {
+              Swal.fire('Error', 'Error de conexión al cancelar el token.', 'error');
+            }
+          });
+        });
+      }
+    } else {
+      lista.innerHTML = '<li class="list-group-item text-danger">No se pudo cargar la lista de tokens</li>';
+    }
+  } catch (error) {
+    document.getElementById('mesasTokenLista').innerHTML = '<li class="list-group-item text-danger">Error al cargar tokens</li>';
+  }
+}
+
+// Evento para el botón de generar token
+function configurarBotonGenerarToken() {
+  const btnGenerarToken = document.getElementById('btnGenerarToken');
+  btnGenerarToken.addEventListener('click', async function () {
+    const mesaId = mesaSelect.value;
+    if (!mesaId) {
+      mostrarAdvertencia('Seleccione una mesa', 'Debe seleccionar una mesa para generar el token.');
+      return;
+    }
+    try {
+      btnGenerarToken.disabled = true;
+      btnGenerarToken.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generando...';
+      const response = await fetch('../../controllers/mesero/generar_token.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `mesa_id=${encodeURIComponent(mesaId)}`
+      });
+      const data = await response.json();
+      if (data.success) {
+        mostrarExito('Token generado', `Token: <b>${data.token}</b><br>Expira: ${data.expira}`);
+        await cargarMesasTokenActivas();
+      } else {
+        mostrarError('Error', data.message || 'No se pudo generar el token');
+      }
+    } catch (error) {
+      mostrarError('Error', 'No se pudo generar el token.');
+    } finally {
+      btnGenerarToken.disabled = false;
+      btnGenerarToken.innerHTML = '<i class="fas fa-key me-2"></i>Generar Token para la Mesa';
+    }
+  });
+}
 const mesaSelect = document.querySelector('#mesaSelect');
 const categoriaSelect = document.querySelector('#categoriaSelect');
 const buscadorProductos = document.querySelector('#buscadorProductos');
@@ -151,10 +264,10 @@ function mostrarConfirmacion(titulo, mensaje, callback) {
 // Función para validar selección de mesa y mostrar productos activos
 function configurarValidacionMesas() {
   mesaSelect.addEventListener('change', function () {
-
-    if (this.value) {      // verifica si se selecciono una mesa en el select
+    const idMesaSeleccionada = this.value;
+    if (idMesaSeleccionada) {      // verifica si se selecciono una mesa en el select
       // Cargar productos del pedido activo para visualización
-      cargarProductosPedidoActivo(this.value);
+      cargarProductosPedidoActivo(idMesaSeleccionada);
     } else {
       // Limpiar si no hay mesa seleccionada
       const pedidosContainer = document.getElementById('pedidosActivosMesa');
@@ -652,11 +765,13 @@ async function actualizarPedidoExistente(pedidoId) {
  */
 async function crearPedidoNuevo() {
   // Crear objeto completo para enviar al backend
+  // Obtener el ID del usuario logueado desde el atributo data del body
+  const usuarioId = document.body.getAttribute('data-usuario-id') || 1;
   const pedidoCompleto = {
     // Datos para tabla pedidos
     pedido: {
       mesa: pedidoActual.mesa,
-      usuario: 1, // ID del mesero (puedes obtenerlo de sesión)
+      usuario: usuarioId, // ID del mesero desde data attribute
       fecha: new Date().toISOString().slice(0, 19).replace('T', ' '),
       estado: 3, // 3 = confirmado
       total: pedidoActual.total,
@@ -723,8 +838,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     cargarProductos();
     configurarEventosModal();
     configurarEventosPedido();
-    configurarValidacionMesas(); // Agregar validación de mesas
-
+    configurarValidacionMesas();
+    configurarBotonGenerarToken();
+    await cargarMesasTokenActivas();
   } catch (error) {
     console.error('Error en la inicialización:', error);
     mostrarError('Error de inicialización', 'Hubo un problema al cargar la aplicación. Recargue la página.');

@@ -5,14 +5,13 @@ require_once __DIR__ . "/../MySQL.php";
 require_once __DIR__ . "/../../config/config.php";
 
 
-class consultas_mesero
-{
-    // Atributo para la conexión a la base de datos
+
+class consultas_mesero {
     private $mysql;
 
     public function __construct()
     {
-        $this->mysql = new MySql();
+    $this->mysql = new MySql();
     }
 
     /**
@@ -26,7 +25,6 @@ class consultas_mesero
                 m.idmesas,
                 m.nombre,
                 m.estados_idestados,
-                -- Verificar si tiene pedidos confirmados (en proceso) o en preparación
                 CASE 
                     WHEN EXISTS (
                         SELECT 1 FROM pedidos p 
@@ -52,7 +50,7 @@ class consultas_mesero
         }
     }
 
-    /**
+        /**
      * Devuelve todas las categorías activas de productos.
      * Usada por el controlador para cargar el select de categorías en la vista del mesero.
      */
@@ -91,7 +89,8 @@ class consultas_mesero
             ORDER BY p.nombre_producto";
 
         try {
-            return $this->mysql->consultarConParametros($query, [$idcategorias]);
+            $stmt = $this->mysql->ejecutarSentenciaPreparada($query, [$idcategorias]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             throw new Exception("Error al obtener los productos por categoría: " . $e->getMessage());
         }
@@ -109,7 +108,7 @@ class consultas_mesero
                   VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try {
-            $this->mysql->ejecutarConsultaPreparada($query, [
+            $this->mysql->ejecutarSentenciaPreparada($query, [
                 $mesa,
                 $usuario,
                 $fecha,
@@ -133,10 +132,10 @@ class consultas_mesero
     public function insertarDetallePedido($pedidoId, $productoId, $cantidad, $precio, $subtotal, $observaciones)
     {
         // 1. Validar stock
-        $this->validarStockProducto($productoId, $cantidad);
+    $this->validarStockProducto($productoId, $cantidad);
 
-        // 2. Consultar estado del pedido
-        $estado = $this->obtenerEstadoPedidoSoloId($pedidoId);
+    // 2. Consultar estado del pedido
+    $estado = $this->obtenerEstadoPedidoSoloId($pedidoId);
 
         // 3. Determinar si es producto nuevo y actualizar estado si corresponde
         $esProductoNuevo = 0;
@@ -146,10 +145,10 @@ class consultas_mesero
         }
 
         // 4. Insertar detalle
-        $exito = $this->insertarDetallePedidoEnBD($pedidoId, $productoId, $cantidad, $precio, $subtotal, $observaciones, $esProductoNuevo);
+    $exito = $this->insertarDetallePedidoEnBD($pedidoId, $productoId, $cantidad, $precio, $subtotal, $observaciones, $esProductoNuevo);
 
-        // 5. Actualizar stock si corresponde
-        $this->actualizarStockProducto($productoId, $cantidad);
+    // 5. Actualizar stock si corresponde
+    $this->actualizarStockProducto($productoId, $cantidad);
 
         return $exito;
     }
@@ -159,8 +158,8 @@ class consultas_mesero
      */
     private function obtenerEstadoPedidoSoloId($pedidoId)
     {
-        $respuestaArray = $this->consultarEstadoPedidoActivo($pedidoId);
-        return !empty($respuestaArray) ? (int)$respuestaArray[0]['estados_idestados'] : null;
+    $respuestaArray = $this->consultarEstadoPedidoActivo($pedidoId);
+    return !empty($respuestaArray) ? (int)$respuestaArray[0]['estados_idestados'] : null;
     }
 
     /**
@@ -171,7 +170,7 @@ class consultas_mesero
         $query = "INSERT INTO detalle_pedidos (pedidos_idpedidos, productos_idproductos, cantidad_producto, precio_producto, subtotal, observaciones, es_producto_nuevo) 
                   VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
-            $this->mysql->ejecutarConsultaPreparada($query, [
+            $this->mysql->ejecutarSentenciaPreparada($query, [
                 $pedidoId,
                 $productoId,
                 $cantidad,
@@ -200,7 +199,7 @@ class consultas_mesero
             AND tipo_productos_idtipo_productos = 2"; // 2 con stock - 1 sin stock
 
         try {
-            $this->mysql->ejecutarConsultaPreparada($query, [$cantidadVendida, $productoId]);
+            $this->mysql->ejecutarSentenciaPreparada($query, [$cantidadVendida, $productoId]);
             return true;
         } catch (Exception $e) {
             throw new Exception("Error al actualizar stock: " . $e->getMessage());
@@ -229,7 +228,7 @@ class consultas_mesero
         $query = "UPDATE mesas SET estados_idestados = ? WHERE idmesas = ?";
 
         try {
-            $this->mysql->ejecutarConsultaPreparada($query, [$estadoId, $mesaId]);
+            $this->mysql->ejecutarSentenciaPreparada($query, [$estadoId, $mesaId]);
             return true; // Si no hay excepción, se actualizó correctamente
         } catch (Exception $e) {
             throw new Exception("Error al actualizar estado de mesa: " . $e->getMessage());
@@ -258,7 +257,8 @@ class consultas_mesero
             ORDER BY dp.iddetalle_pedidos";
 
         try {
-            return $this->mysql->consultarConParametros($query, [$pedidoId]);
+            $stmt = $this->mysql->ejecutarSentenciaPreparada($query, [$pedidoId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             throw new Exception("Error al obtener detalles del pedido: " . $e->getMessage());
         }
@@ -287,7 +287,8 @@ class consultas_mesero
             WHERE pe.idpedidos = ?";
 
         try {
-            $result = $this->mysql->consultarConParametros($query, [$pedidoId]);
+            $stmt = $this->mysql->ejecutarSentenciaPreparada($query, [$pedidoId]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return !empty($result) ? $result[0] : null;
         } catch (Exception $e) {
             throw new Exception("Error al obtener información del pedido: " . $e->getMessage());
@@ -310,7 +311,8 @@ class consultas_mesero
             WHERE p.idproductos = ? AND p.estados_idestados = 1";
 
         try {
-            $result = $this->mysql->consultarConParametros($query, [$productoId]);
+            $stmt = $this->mysql->ejecutarSentenciaPreparada($query, [$productoId]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (empty($result)) {
                 throw new Exception("Producto no encontrado o inactivo");
             }
@@ -359,7 +361,8 @@ class consultas_mesero
             ORDER BY pe.fecha_hora_pedido DESC, pr.nombre_producto ASC";
 
         try {
-            return $this->mysql->consultarConParametros($query, [$mesaId]);
+            $stmt = $this->mysql->ejecutarSentenciaPreparada($query, [$mesaId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             throw new Exception("Error al obtener productos activos de la mesa: " . $e->getMessage());
         }
@@ -374,7 +377,8 @@ class consultas_mesero
     {
         $query = "select total_pedido as total from pedidos where idpedidos = ?";
         try {
-            return $this->mysql->consultarConParametros($query, [$idPedido]);
+            $stmt = $this->mysql->ejecutarSentenciaPreparada($query, [$idPedido]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             throw new Exception("Error al obtener el total del pedido activo: " . $e->getMessage());
         }
@@ -390,7 +394,7 @@ class consultas_mesero
         $query = "UPDATE pedidos SET total_pedido = ? WHERE idpedidos = ?";
 
         try {
-            $this->mysql->ejecutarConsultaPreparada($query, [$nuevoTotal, $pedidoId]);
+            $this->mysql->ejecutarSentenciaPreparada($query, [$nuevoTotal, $pedidoId]);
             return true;
         } catch (Exception $e) {
             throw new Exception("Error al actualizar total del pedido: " . $e->getMessage());
@@ -407,7 +411,8 @@ class consultas_mesero
         $query = "SELECT estados_idestados FROM pedidos WHERE idpedidos = ?";
 
         try {
-            return $this->mysql->consultarConParametros($query, [$pedidoId]);
+            $stmt = $this->mysql->ejecutarSentenciaPreparada($query, [$pedidoId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             throw new Exception("Error al consultar el estado del pedido: " . $e->getMessage());
         }
@@ -419,10 +424,134 @@ class consultas_mesero
         $query = "UPDATE pedidos SET estados_idestados = ? WHERE idpedidos = ?";
 
         try {
-            $this->mysql->ejecutarConsultaPreparada($query, [$estado, $pedidoId]);
+            $this->mysql->ejecutarSentenciaPreparada($query, [$estado, $pedidoId]);
             return true;
         } catch (Exception $e) {
             throw new Exception("Error al actualizar el estado del pedido: " . $e->getMessage());
         }
     }
+
+    // TOKENS: Cancelar token por idtoken_mesa
+    public function cancelarTokenPorId($idtoken) {
+        $query = "UPDATE tokens_mesa SET estado_token = 'cancelado' WHERE idtoken_mesa = ? AND estado_token = 'activo'";
+        try {
+            $stmt = $this->mysql->ejecutarSentenciaPreparada($query, [$idtoken]);
+            $filas = method_exists($stmt, 'rowCount') ? $stmt->rowCount() : 0;
+            return $filas;
+        } catch (Exception $e) {
+            throw new Exception("Error al cancelar token por ID: " . $e->getMessage());
+        }
+    }
+
+    // TOKENS: Cancelar token por valor de token
+    public function cancelarTokenPorValor($token) {
+        $query = "UPDATE tokens_mesa SET estado_token = 'cancelado' WHERE token = ? AND estado_token = 'activo'";
+        try {
+            $this->mysql->ejecutarSentenciaPreparada($query, [$token]);
+            return true;
+        } catch (Exception $e) {
+            throw new Exception("Error al cancelar token por valor: " . $e->getMessage());
+        }
+    }
+
+    // TOKENS: Traer tokens activos
+    public function traerTokensActivos() {
+        $query = "SELECT t.token, t.fecha_hora_generacion, t.fecha_hora_expiracion, t.estado_token, m.nombre as mesa_nombre, m.idmesas FROM tokens_mesa t JOIN mesas m ON t.mesas_idmesas = m.idmesas WHERE t.estado_token = 'activo' AND t.fecha_hora_expiracion > NOW() ORDER BY t.fecha_hora_generacion DESC";
+        try {
+            return $this->mysql->efectuarConsulta($query);
+        } catch (Exception $e) {
+            throw new Exception("Error al traer tokens activos: " . $e->getMessage());
+        }
+    }
+
+    // TOKENS: Insertar nuevo token para una mesa
+    public function insertarTokenMesa($token, $expiracion, $mesa_id, $usuario_id) {
+        $query = "INSERT INTO tokens_mesa (token, fecha_hora_generacion, fecha_hora_expiracion, estado_token, mesas_idmesas, usuarios_idusuarios) VALUES (?, NOW(), ?, 'activo', ?, ?)";
+        try {
+            $this->mysql->ejecutarSentenciaPreparada($query, [$token, $expiracion, $mesa_id, $usuario_id]);
+            return $this->mysql->obtenerUltimoId();
+        } catch (Exception $e) {
+            throw new Exception("Error al insertar token para mesa: " . $e->getMessage());
+        }
+    }
+
+    // TOKENS: Obtener solo el token activo y vigente de una mesa
+    public function obtenerTokensActivosPorMesa($mesaId) {
+        $query = "SELECT idtoken_mesa, token, fecha_hora_generacion, fecha_hora_expiracion, estado_token 
+            FROM tokens_mesa 
+            WHERE mesas_idmesas = ? AND estado_token = 'activo' AND fecha_hora_expiracion > NOW()
+            ORDER BY fecha_hora_generacion DESC
+            LIMIT 1";
+        try {
+            $stmt = $this->mysql->ejecutarSentenciaPreparada($query, [$mesaId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            throw new Exception("Error al obtener token activo de la mesa: " . $e->getMessage());
+        }
+    }
+
+    public function traerPedidosActivosPorMesa($pdo, $mesaId) {
+        // Solo pedidos con productos y token activo/vigente
+        $stmt = $pdo->prepare("
+            SELECT p.idpedidos, p.fecha_hora_pedido, p.total_pedido, p.token_utilizado, p.estados_idestados
+            FROM pedidos p
+            INNER JOIN detalle_pedidos dp ON dp.pedidos_idpedidos = p.idpedidos
+            LEFT JOIN tokens_mesa t ON t.token = p.token_utilizado
+            WHERE p.mesas_idmesas = ?
+              AND p.estados_idestados IN (1,3,4)
+              AND (
+                (p.token_utilizado IS NOT NULL AND t.estado_token IN ('activo', 'usado') AND t.fecha_hora_expiracion > NOW())
+                OR p.token_utilizado IS NULL
+              )
+            GROUP BY p.idpedidos
+            ORDER BY p.fecha_hora_pedido DESC
+        ");
+        $stmt->execute([$mesaId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function traerDetallePedidoParaEdicion($pdo, $pedidoId) {
+        // Primero verificar el estado del pedido
+        $stmtEstado = $pdo->prepare("SELECT estados_idestados FROM pedidos WHERE idpedidos = ?");
+        $stmtEstado->execute([$pedidoId]);
+        $pedido = $stmtEstado->fetch(PDO::FETCH_ASSOC);
+        
+        // Si el pedido está entregado (estado 4), mostrar solo productos nuevos para edición
+        if ($pedido && (int)$pedido['estados_idestados'] === 4) {
+            $stmt = $pdo->prepare("SELECT dp.productos_idproductos as id, pr.nombre_producto as nombre, dp.cantidad_producto as cantidad, dp.precio_producto as precio, dp.observaciones as comentario, dp.es_producto_nuevo FROM detalle_pedidos dp JOIN productos pr ON pr.idproductos = dp.productos_idproductos WHERE dp.pedidos_idpedidos = ? AND dp.es_producto_nuevo = 1");
+        } else {
+            // Para otros estados, mostrar todos los productos
+            $stmt = $pdo->prepare("SELECT dp.productos_idproductos as id, pr.nombre_producto as nombre, dp.cantidad_producto as cantidad, dp.precio_producto as precio, dp.observaciones as comentario, dp.es_producto_nuevo FROM detalle_pedidos dp JOIN productos pr ON pr.idproductos = dp.productos_idproductos WHERE dp.pedidos_idpedidos = ?");
+        }
+        $stmt->execute([$pedidoId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function traerDetallePedido($pdo, $pedidoId) {
+        // Mostrar todos los productos del pedido (para el resumen)
+        $stmt = $pdo->prepare("SELECT dp.productos_idproductos as id, pr.nombre_producto as nombre, dp.cantidad_producto as cantidad, dp.precio_producto as precio, dp.observaciones as comentario, dp.es_producto_nuevo FROM detalle_pedidos dp JOIN productos pr ON pr.idproductos = dp.productos_idproductos WHERE dp.pedidos_idpedidos = ?");
+        $stmt->execute([$pedidoId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // PEDIDOS POR TOKEN (usuario mesa)
+    public function traerPedidosPorMesaYToken($pdo, $mesaId, $token) {
+        $stmt = $pdo->prepare("
+            SELECT p.idpedidos, p.fecha_hora_pedido, p.total_pedido, p.token_utilizado
+            FROM pedidos p
+            INNER JOIN detalle_pedidos dp ON dp.pedidos_idpedidos = p.idpedidos
+            INNER JOIN tokens_mesa t ON t.token = p.token_utilizado
+            WHERE p.mesas_idmesas = ?
+              AND p.token_utilizado = ?
+              AND p.estados_idestados IN (1,3,4)
+              AND t.estado_token IN ('activo', 'usado')
+              AND t.fecha_hora_expiracion > NOW()
+            GROUP BY p.idpedidos
+            ORDER BY p.fecha_hora_pedido DESC
+        ");
+        $stmt->execute([$mesaId, $token]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
 }

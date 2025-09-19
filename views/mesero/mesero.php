@@ -1,14 +1,8 @@
 <?php
-//prueba--------------------------------------------------------
-if (!isset($_SESSION['usuario_id'])) {
-  // Usuario de prueba
-  $_SESSION['usuario_id'] = 1; // ID de usuario de prueba
-  $_SESSION['usuario_rol'] = 'Mesero'; // Rol de prueba
-  $_SESSION['usuario_nombre'] = 'David'; // Nombre opcional
-}
+
 //-------------------------------------------------------------
 
-/* if (session_status() === PHP_SESSION_NONE) {
+if (session_status() === PHP_SESSION_NONE) {
   session_name('cafe_session');
   session_start();
 }
@@ -23,7 +17,7 @@ if (!isset($_SESSION['usuario_id'])) {
 if ($_SESSION['usuario_rol'] !== 'Mesero' && $_SESSION['usuario_rol'] !== 'Administrador') {
   header('Location: ../../views/login.php');
   exit();
-} */
+}
 ?>
 
 <!DOCTYPE html>
@@ -40,7 +34,7 @@ if ($_SESSION['usuario_rol'] !== 'Mesero' && $_SESSION['usuario_rol'] !== 'Admin
   <link rel="stylesheet" href="../../assets/css/estiloMesero.css" />
 </head>
 
-<body class="bg-coffee">
+<body class="bg-coffee" data-usuario-id="<?php echo htmlspecialchars($_SESSION['usuario_id'], ENT_QUOTES, 'UTF-8'); ?>">
   <!-- Contenedor de Toast Notifications -->
   <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
     <!-- Los toasts se insertarán aquí dinámicamente -->
@@ -218,6 +212,7 @@ if ($_SESSION['usuario_rol'] !== 'Mesero' && $_SESSION['usuario_rol'] !== 'Admin
   </div>
 
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../assets/js/mesero.js"></script>
 </body>

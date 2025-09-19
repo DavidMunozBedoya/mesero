@@ -3,11 +3,6 @@ require_once '../../models/mesero/consultas_mesero.php';
 
 header('Content-Type: application/json');
 
-// Log de inicio para debugging
-error_log("🚀 Iniciando cargar_productos_pedido_activo.php");
-error_log("📨 Método HTTP: " . $_SERVER['REQUEST_METHOD']);
-error_log("📋 POST data: " . json_encode($_POST));
-
 try {
 
     //validaciones
@@ -81,14 +76,6 @@ try {
                         <span class="text-muted">' . htmlspecialchars($producto['observaciones']) . '</span>
                       </div>';
         }
-
-        /* $html .= '
-                <div class="mt-2">
-                    <small class="text-muted">
-                        <i class="fas fa-clock me-1"></i>Ordenado: ' . $fechaFormateada . '
-                    </small>
-                </div>
-            </div>'; */
     }
 
     // Calcular total del pedido
